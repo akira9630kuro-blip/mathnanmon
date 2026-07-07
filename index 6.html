@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>問題カード | 数学モンスター 問題ライブラリ（非公式ビューア）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+<style>
+  :root{
+    --paper:#EBF0F6;
+    --paper-line:#C7D2E0;
+    --ink:#1B2A4A;
+    --ink-soft:#5A6B8C;
+    --panel:#FFFFFF;
+    --red:#B03A2E;
+    --red-soft:#E8D3CE;
+    --gold:#A97A1F;
+    --shadow: 0 8px 24px rgba(27,42,74,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px),
+      var(--paper);
+    background-size: 28px 28px;
+    color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;
+    min-height:100vh;
+  }
+  a{color:inherit;}
+
+  /* ---------- Header ---------- */
+  header{
+    padding:28px 24px 20px;
+    border-bottom:2px solid var(--ink);
+    background:rgba(235,240,246,0.9);
+    backdrop-filter: blur(2px);
+    position:sticky; top:0; z-index:20;
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+  }
+  .brand .mark{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.15em;
+    color:var(--red);
+    border:1px solid var(--red);
+    padding:3px 8px;
+    border-radius:2px;
+    transform:rotate(-2deg);
+    display:inline-block;
+  }
+  .brand h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:26px;
+    margin:0;
+  }
+  header p.sub{
+    margin:8px 0 0;
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    max-width:760px;
+  }
+  header p.sub a{ text-decoration:underline; }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns: 280px 1fr;
+    gap:0;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  nav.courses{
+    border-right:2px solid var(--ink);
+    min-height:calc(100vh - 96px);
+    padding:18px 12px;
+  }
+  @media (max-width:860px){
+    nav.courses{ border-right:none; border-bottom:2px solid var(--ink); min-height:auto; }
+  }
+  nav.courses h2{
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    margin:6px 8px 10px;
+    font-weight:700;
+  }
+  .course-btn{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:transparent;
+    border:none;
+    border-left:3px solid transparent;
+    padding:10px 10px;
+    margin-bottom:2px;
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--ink);
+    border-radius:2px;
+  }
+  .course-btn:hover{ background:rgba(27,42,74,0.06); }
+  .course-btn.active{
+    border-left:3px solid var(--red);
+    background:var(--panel);
+    box-shadow: var(--shadow);
+  }
+  .course-btn .tag{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    color:var(--red);
+    letter-spacing:0.05em;
+    margin-bottom:2px;
+  }
+  .course-btn .label{
+    display:block;
+    font-size:13.5px;
+    line-height:1.4;
+    font-weight:500;
+  }
+
+  main{ padding:22px 26px 80px; min-width:0; }
+
+  .course-head{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .course-head h2{
+    font-family:'Shippori Mincho', serif;
+    font-size:22px;
+    margin:0;
+  }
+  .course-head .links{ font-size:12.5px; display:flex; gap:14px; flex-wrap:wrap;}
+  .course-head .links a{ text-decoration:underline; color:var(--ink-soft); }
+
+  .toolbar{
+    display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .toolbar input[type="search"]{
+    flex:1; min-width:180px;
+    padding:9px 12px;
+    border:1.5px solid var(--ink);
+    background:var(--panel);
+    font-family:inherit;
+    font-size:14px;
+    border-radius:3px;
+  }
+  .count-badge{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  .state-msg{
+    padding:22px;
+    background:var(--panel);
+    border:1px dashed var(--ink-soft);
+    border-radius:4px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.8;
+  }
+  .state-msg a{ text-decoration:underline; }
+  .spinner{
+    display:inline-block; width:14px; height:14px;
+    border:2px solid var(--ink-soft); border-top-color:var(--red);
+    border-radius:50%; animation:spin 0.8s linear infinite; margin-right:8px; vertical-align:-2px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+
+  /* ---------- Problem cards ---------- */
+  .problem-list{
+    display:flex; flex-direction:column; gap:0;
+    border-top:1px solid var(--paper-line);
+  }
+  .problem-row{
+    display:flex; align-items:center; gap:14px;
+    padding:13px 6px;
+    border-bottom:1px solid var(--paper-line);
+    cursor:pointer;
+    background:transparent;
+    transition: background .12s ease;
+  }
+  .problem-row:hover{ background:rgba(255,255,255,0.6); }
+  .problem-row .num{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    width:34px; flex-shrink:0;
+  }
+  .problem-row .info{ flex:1; min-width:0; }
+  .problem-row .title{ font-size:14.5px; font-weight:500; }
+  .problem-row .exam{
+    display:inline-block; margin-top:3px;
+    font-size:11.5px; color:var(--red);
+    background:var(--red-soft);
+    padding:1px 7px; border-radius:10px;
+  }
+  .problem-row .actions{ display:flex; gap:8px; flex-shrink:0; }
+  .pill{
+    font-size:12px; padding:6px 12px; border-radius:16px;
+    border:1.3px solid var(--ink); background:var(--panel);
+    text-decoration:none; white-space:nowrap;
+  }
+  .pill.video{ border-color:var(--gold); color:var(--gold); }
+  .pill:hover{ background:var(--ink); color:var(--paper); }
+  .pill.video:hover{ background:var(--gold); color:#fff; border-color:var(--gold); }
+
+  /* ---------- PDF card panel ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(27,42,74,0.45);
+    display:none; align-items:stretch; justify-content:flex-end;
+    z-index:50;
+  }
+  .overlay.open{ display:flex; }
+  .card-panel{
+    width:min(760px, 96vw);
+    background:var(--panel);
+    height:100%;
+    box-shadow:-12px 0 30px rgba(0,0,0,0.25);
+    display:flex; flex-direction:column;
+    position:relative;
+    border-left:3px solid var(--ink);
+  }
+  .card-panel::before{
+    content:"";
+    position:absolute; top:22px; left:-9px;
+    width:18px; height:18px; border-radius:50%;
+    background:var(--red);
+    box-shadow:0 2px 4px rgba(0,0,0,0.3);
+  }
+  .card-panel-head{
+    padding:16px 20px; border-bottom:1.5px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+  }
+  .card-panel-head h3{
+    font-family:'Shippori Mincho', serif;
+    font-size:17px; margin:0 0 4px;
+  }
+  .card-panel-head .exam{ font-size:12px; color:var(--red); }
+  .card-panel-head .close-btn{
+    background:none; border:1.5px solid var(--ink); border-radius:50%;
+    width:30px; height:30px; font-size:16px; cursor:pointer; flex-shrink:0;
+    line-height:1;
+  }
+  .card-panel-head .close-btn:hover{ background:var(--ink); color:var(--paper); }
+  .card-panel-links{ padding:10px 20px; display:flex; gap:10px; flex-wrap:wrap; border-bottom:1px solid var(--paper-line);}
+  .card-panel iframe{ flex:1; width:100%; border:none; background:#525659; }
+  .card-panel .fallback{ padding:20px; font-size:13px; color:var(--ink-soft); }
+
+  footer{
+    padding:26px 24px 50px; font-size:11.5px; color:var(--ink-soft); line-height:1.8;
+    border-top:1px solid var(--paper-line); margin-top:10px;
+  }
+  footer a{ text-decoration:underline; }
+
+  /* ---------- ランダム出題ボタン ---------- */
+  .dice-btn{
+    font-family:'Space Mono', monospace;
+    font-size:12.5px;
+    padding:9px 16px;
+    border-radius:20px;
+    border:1.5px solid var(--red);
+    background:var(--red);
+    color:#fff;
+    cursor:pointer;
+    white-space:nowrap;
+    box-shadow: var(--shadow);
+    transition: transform .12s ease, background .12s ease;
+  }
+  .dice-btn:hover{ transform:translateY(-1px); background:#8f2e24; }
+  .dice-btn:disabled{ opacity:0.55; cursor:progress; transform:none; }
+  .dice-btn.ghost{
+    background:var(--panel); color:var(--ink); border-color:var(--ink);
+  }
+  .dice-btn.ghost:hover{ background:var(--ink); color:#fff; }
+  .header-actions{ margin-left:auto; }
+  .brand{ align-items:center; }
+
+  /* ---------- PDFプレビュー(画像) ---------- */
+  .card-panel-viewer{
+    flex:1; overflow:auto; background:#3d4650;
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:18px;
+  }
+  .card-panel-viewer .viewer-status{
+    color:#fff; font-size:13px; margin-top:40px; text-align:center; width:100%;
+  }
+  .card-panel-viewer canvas{
+    max-width:100%; height:auto; display:block;
+    background:#fff; box-shadow:0 6px 22px rgba(0,0,0,0.4);
+  }
+  .card-panel-viewer iframe{ flex:1; width:100%; height:100%; border:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark">MM ARCHIVE</span>
+    <h1>問題カード</h1>
+    <span class="header-actions">
+      <button class="dice-btn" id="global-random-btn" type="button">🎲 ランダム出題（全講座から）</button>
+    </span>
+  </div>
+  <p class="sub">
+    「数学モンスター」（<a href="https://www.mathematics-monster.jp/" target="_blank" rel="noopener">mathematics-monster.jp</a>）に掲載されている
+    大学入試数学の演習問題PDFを、講座・単元別にまとめて閲覧するための非公式ビューアです。
+    問題PDF・解説動画の著作権はすべて元サイト（数学モンスター）に帰属します。学習目的でご利用ください。
+  </p>
+</header>
+
+<div class="layout">
+  <nav class="courses">
+    <h2>９講座</h2>
+    <div id="course-buttons"></div>
+  </nav>
+
+  <main>
+    <div id="course-head" class="course-head" style="display:none;">
+      <h2 id="course-title"></h2>
+      <div class="links">
+        <a id="all-pdf-link" href="#" target="_blank" rel="noopener">この講座の全問題PDF（印刷用）</a>
+        <a id="origin-link" href="#" target="_blank" rel="noopener">元ページを開く</a>
+      </div>
+    </div>
+
+    <div class="toolbar" id="toolbar" style="display:none;">
+      <input type="search" id="search-box" placeholder="問題名・大学名で絞り込み（例：東京大 / 極限 / 2011）">
+      <button class="dice-btn ghost" id="local-random-btn" type="button">🎲 この講座からランダム</button>
+      <span class="count-badge" id="count-badge"></span>
+    </div>
+
+    <div id="content">
+      <div class="state-msg">
+        左の一覧から講座を選ぶと、その講座に含まれる入試問題が表示されます。<br>
+        （初回読み込みには数秒かかることがあります）
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  本アプリは学習用の非公式ツールです。問題PDF・解説動画・講座テキストの著作権及び公開の可否は
+  すべて<a href="https://www.mathematics-monster.jp/" target="_blank" rel="noopener">数学モンスター（mathematics-monster.jp）</a>に帰属します。
+  本アプリはコンテンツを複製・再配布するものではなく、元サイトが公開しているPDF・動画への参照を整理して表示するのみです。
+  表示に問題がある場合は元ページを直接ご確認ください。
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="card-panel">
+    <div class="card-panel-head">
+      <div>
+        <h3 id="panel-title">問題タイトル</h3>
+        <span class="exam" id="panel-exam"></span>
+      </div>
+      <button class="close-btn" id="close-btn" aria-label="閉じる">×</button>
+    </div>
+    <div class="card-panel-links">
+      <a class="pill" id="panel-pdf-newtab" href="#" target="_blank" rel="noopener">PDFを新しいタブで開く</a>
+      <a class="pill video" id="panel-video" href="#" target="_blank" rel="noopener" style="display:none;">解説動画を見る（YouTube）</a>
+    </div>
+    <div class="card-panel-viewer" id="panel-viewer">
+      <div class="viewer-status" id="viewer-status">読み込み中…</div>
+      <canvas id="panel-canvas" style="display:none;"></canvas>
+      <iframe id="panel-iframe" src="about:blank" style="display:none;"></iframe>
+    </div>
+    <div class="fallback">
+      画像がうまく表示されない場合は「PDFを新しいタブで開く」をご利用ください。
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://www.mathematics-monster.jp';
+
+// 「９講座」ページから取得した講座一覧
+const CATEGORIES = [
+  { id:'4',  tag:'数学Ⅰ・Ⅱ', label:'２次関数・高次方程式・図形と方程式', all:'004' },
+  { id:'6',  tag:'数学A',    label:'確率・整数問題',               all:'006' },
+  { id:'8',  tag:'数学A',    label:'立体図形',                     all:'008' },
+  { id:'5',  tag:'数学B・C', label:'数列・ベクトル',                all:'005' },
+  { id:'7',  tag:'数学Ⅱ',   label:'微分法・積分法',                all:'007' },
+  { id:'9',  tag:'数学Ⅱ',   label:'三角関数・指数関数・対数関数',    all:'009' },
+  { id:'1',  tag:'数学Ⅲ',   label:'極限・微分法・積分法',           all:'001' },
+  { id:'2',  tag:'数学Ⅲ',   label:'２次曲線・複素数平面',           all:'002' },
+  { id:'3',  tag:'数学Ⅲ発展', label:'極限・微分法・積分法',         all:'003' },
+  { id:'10', tag:'旧課程',   label:'行列',                        all:'010' },
+  { id:'taiken', tag:'体験授業', label:'数学 体験授業',            all:null },
+];
+
+// 複数のCORSプロキシを順番に試す（どれかが落ちていても表示できるように）
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://r.jina.ai/${url}`,
+];
+
+const courseButtonsEl = document.getElementById('course-buttons');
+const contentEl = document.getElementById('content');
+const courseHeadEl = document.getElementById('course-head');
+const courseTitleEl = document.getElementById('course-title');
+const allPdfLinkEl = document.getElementById('all-pdf-link');
+const originLinkEl = document.getElementById('origin-link');
+const toolbarEl = document.getElementById('toolbar');
+const searchBoxEl = document.getElementById('search-box');
+const countBadgeEl = document.getElementById('count-badge');
+
+let currentProblems = [];
+
+function renderCourseButtons(){
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'course-btn';
+    btn.dataset.id = cat.id;
+    btn.innerHTML = `<span class="tag">${cat.tag}</span><span class="label">${cat.label}</span>`;
+    btn.addEventListener('click', () => selectCourse(cat));
+    courseButtonsEl.appendChild(btn);
+  });
+}
+
+async function selectCourse(cat){
+  document.querySelectorAll('.course-btn').forEach(b => b.classList.toggle('active', b.dataset.id === cat.id));
+
+  courseHeadEl.style.display = 'flex';
+  courseTitleEl.textContent = `${cat.tag}｜${cat.label}`;
+  originLinkEl.href = `${BASE}/Responsive/${cat.id}`;
+  if(cat.all){
+    allPdfLinkEl.style.display = 'inline';
+    allPdfLinkEl.href = `${BASE}/PDF/All/${cat.all}.pdf`;
+  } else {
+    allPdfLinkEl.style.display = 'none';
+  }
+  toolbarEl.style.display = 'none';
+  searchBoxEl.value = '';
+  currentProblems = [];
+
+  contentEl.innerHTML = `<div class="state-msg"><span class="spinner"></span>問題一覧を読み込んでいます…</div>`;
+
+  const pageUrl = `${BASE}/Responsive/${cat.id}`;
+  let html = null, lastErr = null;
+  for(const build of PROXIES){
+    try{
+      const res = await fetch(build(pageUrl));
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      if(text && text.length > 200){ html = text; break; }
+    }catch(err){ lastErr = err; }
+  }
+
+  if(!html){
+    contentEl.innerHTML = `
+      <div class="state-msg">
+        講座ページの読み込みに失敗しました（外部プロキシが混み合っている可能性があります）。<br>
+        お手数ですが <a href="${pageUrl}" target="_blank" rel="noopener">元ページ（${pageUrl}）</a> を直接ご覧ください。
+      </div>`;
+    return;
+  }
+
+  const problems = parseProblems(html);
+  currentProblems = problems;
+
+  if(problems.length === 0){
+    contentEl.innerHTML = `
+      <div class="state-msg">
+        問題を自動検出できませんでした。<br>
+        <a href="${pageUrl}" target="_blank" rel="noopener">元ページ</a>を直接ご覧いただくか、
+        「この講座の全問題PDF」から印刷用PDFをご利用ください。
+      </div>`;
+    return;
+  }
+
+  toolbarEl.style.display = 'flex';
+  renderProblemList(problems);
+}
+
+function parseProblems(html){
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const anchors = Array.from(doc.querySelectorAll('a[href*="/PDF/"]'))
+    .filter(a => /\/PDF\/(?!All\/)[^"']+\.pdf/i.test(a.getAttribute('href') || a.href));
+
+  const seen = new Set();
+  const problems = [];
+
+  anchors.forEach(a => {
+    let href = a.getAttribute('href') || a.href;
+    if(href.startsWith('/')) href = BASE + href;
+    if(seen.has(href)) return;
+    seen.add(href);
+
+    // 行っぽい祖先要素を探す（tr, li, もしくは複数要素を含む親div）
+    let row = a.closest('tr') || a.closest('li') || a.parentElement;
+    if(row && row.children && row.children.length < 2 && row.parentElement){
+      row = row.parentElement;
+    }
+    if(!row) row = a.parentElement;
+
+    const clone = row.cloneNode(true);
+    clone.querySelectorAll('a').forEach(el => el.remove());
+    let text = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+
+    const examMatch = text.match(/《([^》]+)》/);
+    const exam = examMatch ? examMatch[1] : '';
+    let title = examMatch ? text.replace(examMatch[0], '').trim() : text;
+    title = title.replace(/^[\|\s]+|[\|\s]+$/g, '');
+    if(!title) title = `問題 ${problems.length + 1}`;
+
+    const videoA = row.querySelector('a[href*="youtu"]');
+    const videoUrl = videoA ? (videoA.getAttribute('href') || videoA.href) : null;
+
+    problems.push({ title, exam, pdfUrl: href, videoUrl });
+  });
+
+  return problems;
+}
+
+function renderProblemList(problems){
+  const listEl = document.createElement('div');
+  listEl.className = 'problem-list';
+
+  problems.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'problem-row';
+    row.dataset.idx = i;
+    row.innerHTML = `
+      <span class="num">${String(i+1).padStart(2,'0')}</span>
+      <span class="info">
+        <span class="title">${escapeHtml(p.title)}</span>
+        ${p.exam ? `<span class="exam">${escapeHtml(p.exam)}</span>` : ''}
+      </span>
+      <span class="actions">
+        <a class="pill" href="${p.pdfUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation();">PDF</a>
+        ${p.videoUrl ? `<a class="pill video" href="${p.videoUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation();">解説</a>` : ''}
+      </span>
+    `;
+    row.addEventListener('click', () => openCard(p));
+    listEl.appendChild(row);
+  });
+
+  contentEl.innerHTML = '';
+  contentEl.appendChild(listEl);
+  countBadgeEl.textContent = `${problems.length} 問`;
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+searchBoxEl.addEventListener('input', () => {
+  const q = searchBoxEl.value.trim().toLowerCase();
+  const filtered = !q ? currentProblems : currentProblems.filter(p =>
+    (p.title + ' ' + p.exam).toLowerCase().includes(q)
+  );
+  renderProblemList(filtered);
+});
+
+// ---- PDFカードパネル ----
+const overlay = document.getElementById('overlay');
+const panelTitle = document.getElementById('panel-title');
+const panelExam = document.getElementById('panel-exam');
+const panelCanvas = document.getElementById('panel-canvas');
+const panelIframe = document.getElementById('panel-iframe');
+const viewerStatus = document.getElementById('viewer-status');
+const panelPdfNewTab = document.getElementById('panel-pdf-newtab');
+const panelVideo = document.getElementById('panel-video');
+
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+}
+
+// PDFのバイナリを取得するためのプロキシ（テキスト変換系のr.jina.aiはPDFには使えないため除外）
+const BIN_PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+];
+
+async function fetchPdfBytes(url){
+  for(const build of BIN_PROXIES){
+    try{
+      const res = await fetch(build(url));
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const buf = await res.arrayBuffer();
+      if(buf.byteLength > 500) return new Uint8Array(buf);
+    }catch(err){ /* 次のプロキシへ */ }
+  }
+  throw new Error('PDFの取得に失敗しました');
+}
+
+let renderToken = 0;
+async function renderPdfPreview(pdfUrl){
+  const myToken = ++renderToken;
+  panelCanvas.style.display = 'none';
+  panelIframe.style.display = 'none';
+  viewerStatus.style.display = 'block';
+  viewerStatus.textContent = '問題画像を生成しています…';
+
+  try{
+    if(!window.pdfjsLib) throw new Error('pdf.js not loaded');
+    const bytes = await fetchPdfBytes(pdfUrl);
+    if(myToken !== renderToken) return; // 別の問題が選ばれていたら中断
+    const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.7 });
+    panelCanvas.width = viewport.width;
+    panelCanvas.height = viewport.height;
+    const ctx = panelCanvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    if(myToken !== renderToken) return;
+    viewerStatus.style.display = 'none';
+    panelCanvas.style.display = 'block';
+  }catch(err){
+    if(myToken !== renderToken) return;
+    // 画像化に失敗した場合はiframe埋め込みにフォールバック
+    viewerStatus.style.display = 'none';
+    panelIframe.style.display = 'block';
+    panelIframe.src = pdfUrl;
+  }
+}
+
+function openCard(p){
+  panelTitle.textContent = p.title;
+  panelExam.textContent = p.exam || '';
+  panelPdfNewTab.href = p.pdfUrl;
+  if(p.videoUrl){
+    panelVideo.style.display = 'inline-block';
+    panelVideo.href = p.videoUrl;
+  } else {
+    panelVideo.style.display = 'none';
+  }
+  overlay.classList.add('open');
+  renderPdfPreview(p.pdfUrl);
+}
+function closeCard(){
+  overlay.classList.remove('open');
+  renderToken++; // 進行中のレンダリングを無効化
+  panelIframe.src = 'about:blank';
+}
+document.getElementById('close-btn').addEventListener('click', closeCard);
+overlay.addEventListener('click', (e) => { if(e.target === overlay) closeCard(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeCard(); });
+
+// ---- ランダム出題 ----
+function pickRandom(arr){
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+document.getElementById('local-random-btn').addEventListener('click', () => {
+  if(!currentProblems.length) return;
+  openCard(pickRandom(currentProblems));
+});
+
+const globalRandomBtn = document.getElementById('global-random-btn');
+globalRandomBtn.addEventListener('click', async () => {
+  globalRandomBtn.disabled = true;
+  const prevLabel = globalRandomBtn.textContent;
+  globalRandomBtn.textContent = '🎲 選んでいます…';
+  try{
+    const cat = pickRandom(CATEGORIES);
+    await selectCourse(cat);
+    if(currentProblems.length){
+      openCard(pickRandom(currentProblems));
+    } else {
+      contentEl.innerHTML = `<div class="state-msg">この講座では問題を取得できませんでした。もう一度お試しください。</div>`;
+    }
+  } finally {
+    globalRandomBtn.disabled = false;
+    globalRandomBtn.textContent = prevLabel;
+  }
+});
+
+renderCourseButtons();
+</script>
+</body>
+</html>
